@@ -28,6 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 
 
+//from https://github.com/tompadz/Android-Utils/blob/main/Utils
+
 class AndroidUtils {
     companion object {
     
