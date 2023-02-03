@@ -137,6 +137,62 @@ class AndroidUtils {
         //endregion
 
         //region view
+        fun View.expand(withAnimation: Boolean = true) {
+            if (!withAnimation) {
+                this.layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT
+                this.visibility = View.VISIBLE
+                return
+            }
+            this.measure(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            val targetHeight: Int = this.measuredHeight
+            this.layoutParams.height = 1
+            this.visibility = View.VISIBLE
+            val a: Animation = object : Animation() {
+                override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
+                    this@expand.layoutParams.height = if (interpolatedTime == 1f)
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    else
+                        (targetHeight * interpolatedTime).toInt()
+                    this@expand.requestLayout()
+
+                }
+                override fun willChangeBounds(): Boolean {
+                    return true
+                }
+            }
+            a.duration = (targetHeight / this.context.resources.displayMetrics.density).toInt().toLong()
+            this.startAnimation(a)
+        }
+
+        fun View.collapse(withAnimation: Boolean = true) {
+            if (!withAnimation) {
+                this.layoutParams.height = 0
+                this.visibility = View.GONE
+                return
+            }
+            val initialHeight: Int = this.measuredHeight
+            val a: Animation = object : Animation() {
+                override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
+                    if (interpolatedTime == 1f) {
+                        this@collapse.visibility = View.GONE
+                    } else {
+                        this@collapse.layoutParams.height =
+                            initialHeight - (initialHeight * interpolatedTime).toInt()
+                        this@collapse.requestLayout()
+                    }
+                }
+
+                override fun willChangeBounds(): Boolean {
+                    return true
+                }
+            }
+            a.duration = (initialHeight / this.context.resources.displayMetrics.density).toInt().toLong()
+            this.startAnimation(a)
+        }
+        
         fun View.setCornerRadiusOfView(radius:Float = 30f) {
             outlineProvider = object : ViewOutlineProvider() {
                 override fun getOutline(view : View, outline : Outline) {
